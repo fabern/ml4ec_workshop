@@ -9,7 +9,7 @@ Read the CSV file `"./data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv"`
 ```{r warning=FALSE, message=FALSE}
 library(tidyverse)
 
-ddf <- read_csv("./data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv") %>% 
+ddf <- read_csv("./data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv", na = "-9999") %>% 
   
   ## select only the variables we are interested in
   select(starts_with("TIMESTAMP"),
@@ -22,7 +22,7 @@ ddf <- read_csv("./data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv") %>
   mutate(TIMESTAMP = lubridate::ymd(TIMESTAMP)) %>%
 
   ## set all -9999 to NA
-  na_if(-9999) %>%
+  # na_if(-9999) %>%
 
   ## drop QC variables (no longer needed), except NEE_VUT_REF_QC
   select(-ends_with("_QC"), NEE_VUT_REF_QC) %>% 
@@ -185,7 +185,8 @@ eval_model <- function(mod, df_train, df_test){
   return(gg1 + gg2)
 }
 
-eval_model(mod = linmod_baser, df_train = ddf_train, df_test = ddf_test)
+eval_model(mod = linmod_baser, df_train = ddf_train, df_test = ddf_test) + 
+  labs(caption = "Linear regression")
 ```
 
 Here, the function `eval_model()` returned an object that is made up of two plots (`return(gg1 + gg2)` in the function definition). This combination of plots by `+` is enabled by the [**patchwork**](https://patchwork.data-imaginist.com/) library. The individual plot objects (`gg1` and `gg2`) are returned by the `ggplot()` functions. The visualisation here is density plot of hexagonal bins. It shows the number of points inside each bin, encoded by the color (see legend "count"). We want the highest density of points along the 1:1 line (the dotted line). Predictions match observations perfectly for points lying on the 1:1 line. Alternatively, we could also use a scatterplot to visualise the model evaluation. However, a large number of points would overlie each other. As typical machine learning applications make use of large number of data, such evaluation plots would typically face the problem of overlying points and density plots are a solution. 
@@ -206,6 +207,7 @@ ddf_train %>%
   geom_density() +
   facet_wrap(~variable, scales = "free")
 ```
+The variable `PA_F` looks weird and was not significant in the linear model. Therefore, we won't use it for the models below.
 
 ### Training
 
@@ -256,14 +258,15 @@ eval_model(
   mod_knn_k2, 
   df_train = ddf_train, 
   df_test = ddf_test
-  )
-
+  ) + labs(caption = "k-Nearest Neighbors with k=2")
+```
+```{r }
 ## with k = 30
 eval_model(
   mod_knn_k30, 
   df_train = ddf_train, 
   df_test = ddf_test
-  )
+  ) + labs(caption = "k-Nearest Neighbors with k=30")
 ```
 
 ### Sample hyperparameters
@@ -272,7 +275,7 @@ Train a KNN model with hyperparameter ($k$) tuned, and with five-fold cross vali
 
 Hint:
 
-- The visualisation of cross-validation results can be visualised with the `plot(model_object)` of `ggplot(model_object)`.
+- The visualisation of cross-validation results can be visualised with the `plot(model_object)` or `ggplot(model_object)`.
 
 ```{r warning=FALSE, message=FALSE}
 mod_knn <- train(

@@ -13,8 +13,7 @@ We are provided with a data file in the format of comma-separated-values (CSV), 
 Let's read the data, select relevant variables, convert the time stamp column to a time object and interpret missing values (encoded `-9999` in the file).
 ```{r warning=FALSE, message=FALSE}
 library(tidyverse)
-
-ddf <- read_csv("./data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv") %>% 
+ddf <- read_csv("./data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv", na = "-9999") %>% 
   
   ## select only the variables we are interested in
   select(TIMESTAMP,
@@ -28,7 +27,7 @@ ddf <- read_csv("./data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv") %>
   mutate(TIMESTAMP = lubridate::ymd(TIMESTAMP)) %>%
 
   ## set all -9999 to NA
-  na_if(-9999) %>%
+  # na_if(-9999) %>%
 
   ## drop QC variables (no longer needed), except NEE_VUT_REF_QC
   select(-ends_with("_QC"), NEE_VUT_REF_QC)

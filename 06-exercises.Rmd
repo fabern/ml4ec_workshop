@@ -89,7 +89,7 @@ Train a KNN model with hyperparameter ($k$) tuned, and with five-fold cross vali
 
 Hint:
 
-- The visualisation of cross-validation results can be visualised with the `plot(model_object)` of `ggplot(model_object)`.
+- The visualisation of cross-validation results can be visualised with the `plot(model_object)` or `ggplot(model_object)`.
 
 ```{r}
 ## write your code here

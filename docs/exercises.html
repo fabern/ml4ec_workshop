@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 7 Exercises | ml4ec - Machine Learning for Eddy Covariance data</title>
   <meta name="description" content="This is a tutorial for a workshop (1 day), introducing machine learning using R." />
-  <meta name="generator" content="bookdown 0.27 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.42.1 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 7 Exercises | ml4ec - Machine Learning for Eddy Covariance data" />
   <meta property="og:type" content="book" />
@@ -23,7 +23,7 @@
 <meta name="author" content="Benjamin Stocker" />
 
 
-<meta name="date" content="2022-09-15" />
+<meta name="date" content="2025-03-06" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -55,6 +55,7 @@
 
 
 <style type="text/css">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -92,7 +93,7 @@ code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
 code span.at { color: #7d9029; } /* Attribute */
 code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
+code span.bu { color: #008000; } /* BuiltIn */
 code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
 code span.ch { color: #4070a0; } /* Char */
 code span.cn { color: #880000; } /* Constant */
@@ -105,7 +106,7 @@ code span.er { color: #ff0000; font-weight: bold; } /* Error */
 code span.ex { } /* Extension */
 code span.fl { color: #40a070; } /* Float */
 code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
+code span.im { color: #008000; font-weight: bold; } /* Import */
 code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
 code span.kw { color: #007020; font-weight: bold; } /* Keyword */
 code span.op { color: #666666; } /* Operator */
@@ -119,6 +120,10 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -250,12 +255,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="reading-and-cleaning" class="section level2 hasAnchor" number="7.1">
 <h2><span class="header-section-number">7.1</span> Reading and cleaning<a href="exercises.html#reading-and-cleaning" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Read the CSV file <code>"./data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv"</code>, select all variables with name ending with <code>"_F"</code>, the variables <code>"TIMESTAMP"</code>, <code>"GPP_NT_VUT_REF"</code>, and <code>"NEE_VUT_REF_QC"</code>, and drop all variables that contain <code>"JSB"</code> in their name. Then convert the variable <code>"TIMESTAMP"</code> to a date-time object with the function <code>ymd()</code> from the <em>lubridate</em> package, and interpret all values <code>-9999</code> as missing values. Then, set all values of <code>"GPP_NT_VUT_REF"</code> to missing if the corresponding quality control variable indicates that less than 90% are measured data points. Finally, drop the variable <code>"NEE_VUT_REF_QC"</code> - we won’t use it anymore.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="exercises.html#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="exercises.html#cb18-1" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
 </div>
 <div id="data-splitting-1" class="section level2 hasAnchor" number="7.2">
 <h2><span class="header-section-number">7.2</span> Data splitting<a href="exercises.html#data-splitting-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Split the data a training and testing set, that contain 70% and 30% of the total available data, respectively.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="exercises.html#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="exercises.html#cb19-1" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
 </div>
 <div id="linear-model" class="section level2 hasAnchor" number="7.3">
 <h2><span class="header-section-number">7.3</span> Linear model<a href="exercises.html#linear-model" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -267,9 +272,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>Is the linear regression slope significantly different from zero for all predictors?</li>
 <li>Is a linear regression model with “poor” predictors removed better supported by the data than a model including all predictors?</li>
 </ul>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="exercises.html#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="exercises.html#cb20-1" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
 <p>Use caret and the function <code>train()</code> for fitting the same linear regression model (with all predictors) on the same data. Does it yield identical results as using <code>lm()</code> directly? You will have to set the argument <code>trControl</code> accordingly to avoid resampling, and instead fit the model on the all data in <code>ddf_train</code>. You can use <code>summary()</code> also on the object returned by the function <code>train()</code>.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="exercises.html#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="exercises.html#cb21-1" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
 </div>
 <div id="prediction" class="section level3 hasAnchor" number="7.3.2">
 <h3><span class="header-section-number">7.3.2</span> Prediction<a href="exercises.html#prediction" class="anchor-section" aria-label="Anchor link to header"></a></h3>
@@ -281,26 +286,26 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>The <span class="math inline">\(R^2\)</span> can be extracted from the model object as <code>summary(model_object)$r.squared</code>, or is (as the RMSE) given in the metrics data frame returned by <code>metrics()</code> from the <em>yardstick</em> library.</li>
 <li>For visualisation the model performance, consider a scatterplot, or (better) a plot that reveals the density of overlapping points. (We’re plotting information from over 4000 data points here!)</li>
 </ul>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="exercises.html#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="exercises.html#cb22-1" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
 </div>
 </div>
 <div id="knn" class="section level2 hasAnchor" number="7.4">
 <h2><span class="header-section-number">7.4</span> KNN<a href="exercises.html#knn" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <div id="check-data" class="section level3 hasAnchor" number="7.4.1">
 <h3><span class="header-section-number">7.4.1</span> Check data<a href="exercises.html#check-data" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="exercises.html#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="exercises.html#cb23-1" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
 <p>The variable <code>PA_F</code> looks weird and was not significant in the linear model. Therefore, we won’t use it for the models below.</p>
 </div>
 <div id="training-2" class="section level3 hasAnchor" number="7.4.2">
 <h3><span class="header-section-number">7.4.2</span> Training<a href="exercises.html#training-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Fit two KNN models on <code>ddf_train</code> (excluding <code>"PA_F"</code>), one with <span class="math inline">\(k = 2\)</span> and one with <span class="math inline">\(k = 30\)</span>, both without resampling. Use the RMSE as the loss function. Center and scale data as part of the pre-processing and model formulation specification using the function <code>recipe()</code>.</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="exercises.html#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="exercises.html#cb24-1" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
 </div>
 <div id="prediction-1" class="section level3 hasAnchor" number="7.4.3">
 <h3><span class="header-section-number">7.4.3</span> Prediction<a href="exercises.html#prediction-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>With the two models fitted above, predict <code>"GPP_NT_VUT_REF"</code> for both and training and the testing sets, and evaluate them as above (metrics and visualisation).</p>
 <p>Which model do you expect to perform better on the training set and which to perform better on the testing set? Why? Do you find evidence for overfitting in any of the models?</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="exercises.html#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="exercises.html#cb25-1" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
 </div>
 <div id="sample-hyperparameters" class="section level3 hasAnchor" number="7.4.4">
 <h3><span class="header-section-number">7.4.4</span> Sample hyperparameters<a href="exercises.html#sample-hyperparameters" class="anchor-section" aria-label="Anchor link to header"></a></h3>
@@ -309,7 +314,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li>The visualisation of cross-validation results can be visualised with the <code>plot(model_object)</code> of <code>ggplot(model_object)</code>.</li>
 </ul>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="exercises.html#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="exercises.html#cb26-1" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
 </div>
 </div>
 <div id="random-forest-1" class="section level2 hasAnchor" number="7.5">
@@ -323,16 +328,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>See <a href="https://topepo.github.io/caret/available-models.html">here</a> for information about hyperparameters available for tuning with caret.</li>
 <li>Set the argument <code>savePredictions = "final"</code> of function <code>trainControl()</code>.</li>
 </ul>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="exercises.html#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="exercises.html#cb27-1" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
 </div>
 <div id="prediction-2" class="section level3 hasAnchor" number="7.5.2">
 <h3><span class="header-section-number">7.5.2</span> Prediction<a href="exercises.html#prediction-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Evaluate the trained model on the training and on the test set, giving metrics and a visualisation as above.</p>
 <p>How are differences in performance to be interpreted? Compare the performances of linear regression, KNN, and random forest, considering the evaluation on the test set.</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="exercises.html#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="exercises.html#cb28-1" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
 <p>Show the model performance (metrics and visualisation) on the validation sets all cross validation folds combined.</p>
 <p>Do you expect it to be more similar to the model performance on the training set or the testing set in the evaluation above? Why?</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="exercises.html#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="exercises.html#cb29-1" tabindex="-1"></a><span class="do">## write your code here</span></span></code></pre></div>
 
 </div>
 </div>
@@ -357,42 +362,42 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script>
 gitbook.require(["gitbook"], function(gitbook) {
 gitbook.start({
-"sharing": {
-"github": false,
-"facebook": true,
-"twitter": true,
-"linkedin": false,
-"weibo": false,
-"instapaper": false,
-"vk": false,
-"whatsapp": false,
-"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
-},
-"fontsettings": {
-"theme": "white",
-"family": "sans",
-"size": 2
-},
-"edit": {
-"link": null,
-"text": null
-},
-"history": {
-"link": null,
-"text": null
-},
-"view": {
-"link": null,
-"text": null
-},
-"download": ["ml4ec_workshop.pdf", "ml4ec_workshop.epub"],
-"search": {
-"engine": "fuse",
-"options": null
-},
-"toc": {
-"collapse": "subsection"
-}
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["ml4ec_workshop.pdf", "ml4ec_workshop.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  }
 });
 });
 </script>
@@ -403,7 +408,7 @@ gitbook.start({
     var script = document.createElement("script");
     script.type = "text/javascript";
     var src = "true";
-    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
     if (location.protocol !== "file:")
       if (/^https?:/.test(src))
         src = src.replace(/^https?:/, '');

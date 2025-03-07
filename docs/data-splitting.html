@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 3 Data splitting | ml4ec - Machine Learning for Eddy Covariance data</title>
   <meta name="description" content="This is a tutorial for a workshop (1 day), introducing machine learning using R." />
-  <meta name="generator" content="bookdown 0.27 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.42.1 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 3 Data splitting | ml4ec - Machine Learning for Eddy Covariance data" />
   <meta property="og:type" content="book" />
@@ -23,7 +23,7 @@
 <meta name="author" content="Benjamin Stocker" />
 
 
-<meta name="date" content="2022-09-15" />
+<meta name="date" content="2025-03-06" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -55,6 +55,7 @@
 
 
 <style type="text/css">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -92,7 +93,7 @@ code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
 code span.at { color: #7d9029; } /* Attribute */
 code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
+code span.bu { color: #008000; } /* BuiltIn */
 code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
 code span.ch { color: #4070a0; } /* Char */
 code span.cn { color: #880000; } /* Constant */
@@ -105,7 +106,7 @@ code span.er { color: #ff0000; font-weight: bold; } /* Error */
 code span.ex { } /* Extension */
 code span.fl { color: #40a070; } /* Float */
 code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
+code span.im { color: #008000; font-weight: bold; } /* Import */
 code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
 code span.kw { color: #007020; font-weight: bold; } /* Keyword */
 code span.op { color: #666666; } /* Operator */
@@ -119,6 +120,10 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -253,33 +258,32 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>In contrast, <em>pre-processing</em> refers to the additional steps that are either required by the ML algorithm (e.g. centering and scaling for KNN or neural networks) or the transformation of variables guided by the resulting improvement of the predictive power of the ML model. In other words, pre-processing is part of the modelling workflow and includes all steps that apply transformations that use parameters derived from the data.</p>
 <p>We are provided with a data file in the format of comma-separated-values (CSV), obtained through <a href="https://fluxnet.org/data/fluxnet2015-dataset/">FLUXNET2015</a>. It contains data from one site (<a href="https://gl.ethz.ch/infrastructure/sites/davos.html">CH-Dav</a>) at a daily time step, and includes quality control information for each variable.</p>
 <p>Let’s read the data, select relevant variables, convert the time stamp column to a time object and interpret missing values (encoded <code>-9999</code> in the file).</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="data-splitting.html#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb2-2"><a href="data-splitting.html#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="data-splitting.html#cb2-3" aria-hidden="true" tabindex="-1"></a>ddf <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;./data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv&quot;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb2-4"><a href="data-splitting.html#cb2-4" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-5"><a href="data-splitting.html#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="do">## select only the variables we are interested in</span></span>
-<span id="cb2-6"><a href="data-splitting.html#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(TIMESTAMP,</span>
-<span id="cb2-7"><a href="data-splitting.html#cb2-7" aria-hidden="true" tabindex="-1"></a>         GPP_NT_VUT_REF,    <span class="co"># the target</span></span>
-<span id="cb2-8"><a href="data-splitting.html#cb2-8" aria-hidden="true" tabindex="-1"></a>         NEE_VUT_REF_QC,    <span class="co"># quality control info</span></span>
-<span id="cb2-9"><a href="data-splitting.html#cb2-9" aria-hidden="true" tabindex="-1"></a>         <span class="fu">ends_with</span>(<span class="st">&quot;_F&quot;</span>),   <span class="co"># includes all all meteorological variables</span></span>
-<span id="cb2-10"><a href="data-splitting.html#cb2-10" aria-hidden="true" tabindex="-1"></a>         <span class="sc">-</span><span class="fu">contains</span>(<span class="st">&quot;JSB&quot;</span>)   <span class="co"># weird useless variable</span></span>
-<span id="cb2-11"><a href="data-splitting.html#cb2-11" aria-hidden="true" tabindex="-1"></a>         ) <span class="sc">%&gt;%</span></span>
-<span id="cb2-12"><a href="data-splitting.html#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="data-splitting.html#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="do">## convert to a nice date object</span></span>
-<span id="cb2-14"><a href="data-splitting.html#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">TIMESTAMP =</span> lubridate<span class="sc">::</span><span class="fu">ymd</span>(TIMESTAMP)) <span class="sc">%&gt;%</span></span>
-<span id="cb2-15"><a href="data-splitting.html#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-16"><a href="data-splitting.html#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="do">## set all -9999 to NA</span></span>
-<span id="cb2-17"><a href="data-splitting.html#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na_if</span>(<span class="sc">-</span><span class="dv">9999</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb2-18"><a href="data-splitting.html#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-19"><a href="data-splitting.html#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="do">## drop QC variables (no longer needed), except NEE_VUT_REF_QC</span></span>
-<span id="cb2-20"><a href="data-splitting.html#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">ends_with</span>(<span class="st">&quot;_QC&quot;</span>), NEE_VUT_REF_QC)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="data-splitting.html#cb2-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-2"><a href="data-splitting.html#cb2-2" tabindex="-1"></a>ddf <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;./data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv&quot;</span>, <span class="at">na =</span> <span class="st">&quot;-9999&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-3"><a href="data-splitting.html#cb2-3" tabindex="-1"></a>  </span>
+<span id="cb2-4"><a href="data-splitting.html#cb2-4" tabindex="-1"></a>  <span class="do">## select only the variables we are interested in</span></span>
+<span id="cb2-5"><a href="data-splitting.html#cb2-5" tabindex="-1"></a>  <span class="fu">select</span>(TIMESTAMP,</span>
+<span id="cb2-6"><a href="data-splitting.html#cb2-6" tabindex="-1"></a>         GPP_NT_VUT_REF,    <span class="co"># the target</span></span>
+<span id="cb2-7"><a href="data-splitting.html#cb2-7" tabindex="-1"></a>         NEE_VUT_REF_QC,    <span class="co"># quality control info</span></span>
+<span id="cb2-8"><a href="data-splitting.html#cb2-8" tabindex="-1"></a>         <span class="fu">ends_with</span>(<span class="st">&quot;_F&quot;</span>),   <span class="co"># includes all all meteorological variables</span></span>
+<span id="cb2-9"><a href="data-splitting.html#cb2-9" tabindex="-1"></a>         <span class="sc">-</span><span class="fu">contains</span>(<span class="st">&quot;JSB&quot;</span>)   <span class="co"># weird useless variable</span></span>
+<span id="cb2-10"><a href="data-splitting.html#cb2-10" tabindex="-1"></a>         ) <span class="sc">%&gt;%</span></span>
+<span id="cb2-11"><a href="data-splitting.html#cb2-11" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="data-splitting.html#cb2-12" tabindex="-1"></a>  <span class="do">## convert to a nice date object</span></span>
+<span id="cb2-13"><a href="data-splitting.html#cb2-13" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">TIMESTAMP =</span> lubridate<span class="sc">::</span><span class="fu">ymd</span>(TIMESTAMP)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-14"><a href="data-splitting.html#cb2-14" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="data-splitting.html#cb2-15" tabindex="-1"></a>  <span class="do">## set all -9999 to NA</span></span>
+<span id="cb2-16"><a href="data-splitting.html#cb2-16" tabindex="-1"></a>  <span class="co"># na_if(-9999) %&gt;%</span></span>
+<span id="cb2-17"><a href="data-splitting.html#cb2-17" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="data-splitting.html#cb2-18" tabindex="-1"></a>  <span class="do">## drop QC variables (no longer needed), except NEE_VUT_REF_QC</span></span>
+<span id="cb2-19"><a href="data-splitting.html#cb2-19" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">ends_with</span>(<span class="st">&quot;_QC&quot;</span>), NEE_VUT_REF_QC)</span></code></pre></div>
 <p>If the style of the code above looks unfamiliar - this is the <strong><a href="https://www.tidyverse.org/">tidyverse</a></strong>. The tidyverse is a R syntax “dialect” and a collection of R functions and packages. They share the structure of arguments and function return values than can be combined to a chain by the <code>%&gt;%</code> (“pipe”) operator. For this, the output of each function is a data frame which is “piped” to the next function, and each function takes a data frame as input. What is piped into a function takes the place of the first argument, normally provided inside the brackets. This enables ease with typical data wrangling and visualization tasks (<strong><a href="https://ggplot2.tidyverse.org/">ggplot2</a></strong> is part of the tidyverse). This tutorial is generally written using tidyverse packages and code syntax.</p>
 <p>The column <code>NEE_VUT_REF_QC</code> provides information about the fraction of gap-filled half-hourly data used to calculate daily aggregates. Let’s use only <code>GPP_NT_VUT_REF</code> data, where at least 80% of the underlying half-hourly data was good quality measured data, and not gap-filled. Make sure to not actually remove the respective rows, but rather replace values with NA.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="data-splitting.html#cb3-1" aria-hidden="true" tabindex="-1"></a>ddf <span class="ot">&lt;-</span> ddf <span class="sc">%&gt;%</span> </span>
-<span id="cb3-2"><a href="data-splitting.html#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">GPP_NT_VUT_REF =</span> <span class="fu">ifelse</span>(NEE_VUT_REF_QC <span class="sc">&lt;</span> <span class="fl">0.8</span>, <span class="cn">NA</span>, GPP_NT_VUT_REF))</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="data-splitting.html#cb3-1" tabindex="-1"></a>ddf <span class="ot">&lt;-</span> ddf <span class="sc">%&gt;%</span> </span>
+<span id="cb3-2"><a href="data-splitting.html#cb3-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">GPP_NT_VUT_REF =</span> <span class="fu">ifelse</span>(NEE_VUT_REF_QC <span class="sc">&lt;</span> <span class="fl">0.8</span>, <span class="cn">NA</span>, GPP_NT_VUT_REF))</span></code></pre></div>
 <p>At this stage, we won’t use <code>NEE_VUT_REF_QC</code> any longer. So we can drop it.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="data-splitting.html#cb4-1" aria-hidden="true" tabindex="-1"></a>ddf <span class="ot">&lt;-</span> ddf <span class="sc">%&gt;%</span> </span>
-<span id="cb4-2"><a href="data-splitting.html#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>NEE_VUT_REF_QC)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="data-splitting.html#cb4-1" tabindex="-1"></a>ddf <span class="ot">&lt;-</span> ddf <span class="sc">%&gt;%</span> </span>
+<span id="cb4-2"><a href="data-splitting.html#cb4-2" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>NEE_VUT_REF_QC)</span></code></pre></div>
 </div>
 <div id="splitting-into-testing-and-training-sets" class="section level2 hasAnchor" number="3.2">
 <h2><span class="header-section-number">3.2</span> Splitting into testing and training sets<a href="data-splitting.html#splitting-into-testing-and-training-sets" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -293,20 +297,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>In environmental sciences, the number of predictors is often smaller than the sample size (<span class="math inline">\(p &lt; n\)</span>), because its typically easier to collect repeated observations of a particular variable than to expand the set of variables being observed. Nevertheless, in cases where the number <span class="math inline">\(p\)</span> gets large, it is important, and for some algorithms mandatory, to maintain <span class="math inline">\(p &lt; n\)</span> for model training.</p>
 <p>An important aspect to consider when splitting the data is to make sure that all “states” of the system for which we have data are approximately equally represented in training and testing sets. This is to make sure that the algorithm learns relationships <span class="math inline">\(f(X)\)</span> also under rare conditions <span class="math inline">\(X\)</span>, for example meteorological extreme events.</p>
 <p>Several alternative functions for the data splitting step are available from different packages in R. We will use the the <strong>rsample</strong> package as it allows to additionally make sure that data from the full range of a given variable’s values (<code>VPD_F</code> in the example below) are well covered in both training and testing sets.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="data-splitting.html#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rsample)</span>
-<span id="cb5-2"><a href="data-splitting.html#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)  <span class="co"># for reproducibility</span></span>
-<span id="cb5-3"><a href="data-splitting.html#cb5-3" aria-hidden="true" tabindex="-1"></a>split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(ddf, <span class="at">prop =</span> <span class="fl">0.7</span>, <span class="at">strata =</span> <span class="st">&quot;VPD_F&quot;</span>)</span>
-<span id="cb5-4"><a href="data-splitting.html#cb5-4" aria-hidden="true" tabindex="-1"></a>ddf_train <span class="ot">&lt;-</span> <span class="fu">training</span>(split)</span>
-<span id="cb5-5"><a href="data-splitting.html#cb5-5" aria-hidden="true" tabindex="-1"></a>ddf_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(split)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="data-splitting.html#cb5-1" tabindex="-1"></a><span class="fu">library</span>(rsample)</span>
+<span id="cb5-2"><a href="data-splitting.html#cb5-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)  <span class="co"># for reproducibility</span></span>
+<span id="cb5-3"><a href="data-splitting.html#cb5-3" tabindex="-1"></a>split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(ddf, <span class="at">prop =</span> <span class="fl">0.7</span>, <span class="at">strata =</span> <span class="st">&quot;VPD_F&quot;</span>)</span>
+<span id="cb5-4"><a href="data-splitting.html#cb5-4" tabindex="-1"></a>ddf_train <span class="ot">&lt;-</span> <span class="fu">training</span>(split)</span>
+<span id="cb5-5"><a href="data-splitting.html#cb5-5" tabindex="-1"></a>ddf_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(split)</span></code></pre></div>
 <p>Plot the distribution of values in the training and testing sets.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="data-splitting.html#cb6-1" aria-hidden="true" tabindex="-1"></a>ddf_train <span class="sc">%&gt;%</span> </span>
-<span id="cb6-2"><a href="data-splitting.html#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">split =</span> <span class="st">&quot;train&quot;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-3"><a href="data-splitting.html#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(ddf_test <span class="sc">%&gt;%</span> </span>
-<span id="cb6-4"><a href="data-splitting.html#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">split =</span> <span class="st">&quot;test&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-5"><a href="data-splitting.html#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">9</span>, <span class="at">names_to =</span> <span class="st">&quot;variable&quot;</span>, <span class="at">values_to =</span> <span class="st">&quot;value&quot;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-6"><a href="data-splitting.html#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">y =</span> ..density.., <span class="at">color =</span> split)) <span class="sc">+</span></span>
-<span id="cb6-7"><a href="data-splitting.html#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>() <span class="sc">+</span></span>
-<span id="cb6-8"><a href="data-splitting.html#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>variable, <span class="at">scales =</span> <span class="st">&quot;free&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="data-splitting.html#cb6-1" tabindex="-1"></a>ddf_train <span class="sc">%&gt;%</span> </span>
+<span id="cb6-2"><a href="data-splitting.html#cb6-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">split =</span> <span class="st">&quot;train&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-3"><a href="data-splitting.html#cb6-3" tabindex="-1"></a>  <span class="fu">bind_rows</span>(ddf_test <span class="sc">%&gt;%</span> </span>
+<span id="cb6-4"><a href="data-splitting.html#cb6-4" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">split =</span> <span class="st">&quot;test&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-5"><a href="data-splitting.html#cb6-5" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">9</span>, <span class="at">names_to =</span> <span class="st">&quot;variable&quot;</span>, <span class="at">values_to =</span> <span class="st">&quot;value&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-6"><a href="data-splitting.html#cb6-6" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">y =</span> ..density.., <span class="at">color =</span> split)) <span class="sc">+</span></span>
+<span id="cb6-7"><a href="data-splitting.html#cb6-7" tabindex="-1"></a>  <span class="fu">geom_density</span>() <span class="sc">+</span></span>
+<span id="cb6-8"><a href="data-splitting.html#cb6-8" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>variable, <span class="at">scales =</span> <span class="st">&quot;free&quot;</span>)</span></code></pre></div>
 <p><img src="ml4ec_workshop_files/figure-html/unnamed-chunk-12-1.png" width="696" style="display: block; margin: auto;" /></p>
 
 </div>
@@ -331,42 +335,42 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script>
 gitbook.require(["gitbook"], function(gitbook) {
 gitbook.start({
-"sharing": {
-"github": false,
-"facebook": true,
-"twitter": true,
-"linkedin": false,
-"weibo": false,
-"instapaper": false,
-"vk": false,
-"whatsapp": false,
-"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
-},
-"fontsettings": {
-"theme": "white",
-"family": "sans",
-"size": 2
-},
-"edit": {
-"link": null,
-"text": null
-},
-"history": {
-"link": null,
-"text": null
-},
-"view": {
-"link": null,
-"text": null
-},
-"download": ["ml4ec_workshop.pdf", "ml4ec_workshop.epub"],
-"search": {
-"engine": "fuse",
-"options": null
-},
-"toc": {
-"collapse": "subsection"
-}
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["ml4ec_workshop.pdf", "ml4ec_workshop.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  }
 });
 });
 </script>
@@ -377,7 +381,7 @@ gitbook.start({
     var script = document.createElement("script");
     script.type = "text/javascript";
     var src = "true";
-    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
     if (location.protocol !== "file:")
       if (/^https?:/.test(src))
         src = src.replace(/^https?:/, '');

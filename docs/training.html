@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Chapter 6 Model training | ml4ec - Machine Learning for Eddy Covariance data</title>
   <meta name="description" content="This is a tutorial for a workshop (1 day), introducing machine learning using R." />
-  <meta name="generator" content="bookdown 0.27 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.42.1 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Chapter 6 Model training | ml4ec - Machine Learning for Eddy Covariance data" />
   <meta property="og:type" content="book" />
@@ -23,7 +23,7 @@
 <meta name="author" content="Benjamin Stocker" />
 
 
-<meta name="date" content="2022-09-15" />
+<meta name="date" content="2025-03-06" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -55,6 +55,7 @@
 
 
 <style type="text/css">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -92,7 +93,7 @@ code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
 code span.at { color: #7d9029; } /* Attribute */
 code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
+code span.bu { color: #008000; } /* BuiltIn */
 code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
 code span.ch { color: #4070a0; } /* Char */
 code span.cn { color: #880000; } /* Constant */
@@ -105,7 +106,7 @@ code span.er { color: #ff0000; font-weight: bold; } /* Error */
 code span.ex { } /* Extension */
 code span.fl { color: #40a070; } /* Float */
 code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
+code span.im { color: #008000; font-weight: bold; } /* Import */
 code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
 code span.kw { color: #007020; font-weight: bold; } /* Keyword */
 code span.op { color: #666666; } /* Operator */
@@ -119,6 +120,10 @@ code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
@@ -248,7 +253,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1><span class="header-section-number">Chapter 6</span> Model training<a href="training.html#training" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>Model training in supervised ML is guided by the match (or mismatch) between the predicted and observed target variable(s), that is, between <span class="math inline">\(\hat{Y}\)</span> and <span class="math inline">\(Y\)</span>. The <em>loss</em> function quantifies this mismatch (<span class="math inline">\(L(\hat{Y}, Y)\)</span>), and the algorithm takes care of progressively reducing the loss during model training. Let’s say the ML model contains two parameters and predictions can be considered a function of the two (<span class="math inline">\(\hat{Y}(w_1, w_2)\)</span>). <span class="math inline">\(Y\)</span> is actually constant. Thus, the loss function is effectively a function <span class="math inline">\(L(w_1, w_2)\)</span>. Therefore, we can consider the model training as a search of the parameter space of the machine learning model <span class="math inline">\((w_1, w_2)\)</span> to find the minimum of the loss. Common loss functions are the root mean square error (RMSE), or the mean square error (MSE), or the mean absolute error (MAE). Loss minimization is a general feature of ML model training.</p>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:unnamed-chunk-22"></span>
-<img src="fig/loss_plane.png" alt="Visualization of a loss function as a plane spanned by the two parameters $w_1$ and $w_2$." width="414" />
+<img src="fig/loss_plane.png" alt="Visualization of a loss function as a plane spanned by the two parameters $w_1$ and $w_2$."  />
 <p class="caption">
 Figure 6.1: Visualization of a loss function as a plane spanned by the two parameters <span class="math inline">\(w_1\)</span> and <span class="math inline">\(w_2\)</span>.
 </p>
@@ -266,35 +271,35 @@ Figure 6.1: Visualization of a loss function as a plane spanned by the two param
 </ul>
 <p>Hyperparameters usually have to be “tuned”. The optimal setting depends on the data and can therefore not be known <em>a priori</em>.</p>
 <p>In <strong>caret</strong>, hyperparameter tuning is implemented as part of the <code>train()</code> function. Values of hyperparameters to consider are to be specified by the argument <code>tuneGrid</code>, which takes a data frame with column(s) named according to the name(s) of the hyperparameter(s) and rows for each combination of hyperparameters to consider.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="training.html#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="do">## do not run</span></span>
-<span id="cb16-2"><a href="training.html#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">train</span>(</span>
-<span id="cb16-3"><a href="training.html#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">form =</span> GPP_NT_VUT_REF <span class="sc">~</span> SW_F_IN <span class="sc">+</span> VPD_F <span class="sc">+</span> TA_F, </span>
-<span id="cb16-4"><a href="training.html#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> ddf, </span>
-<span id="cb16-5"><a href="training.html#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">&quot;ranger&quot;</span>,</span>
-<span id="cb16-6"><a href="training.html#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">tuneGrid =</span> <span class="fu">expand.grid</span>( <span class="at">.mtry =</span> <span class="fu">floor</span>(<span class="dv">6</span> <span class="sc">/</span> <span class="dv">3</span>),</span>
-<span id="cb16-7"><a href="training.html#cb16-7" aria-hidden="true" tabindex="-1"></a>                          <span class="at">.min.node.size =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">9</span>,<span class="dv">15</span>, <span class="dv">30</span>),</span>
-<span id="cb16-8"><a href="training.html#cb16-8" aria-hidden="true" tabindex="-1"></a>                          <span class="at">.splitrule =</span> <span class="fu">c</span>(<span class="st">&quot;variance&quot;</span>, <span class="st">&quot;maxstat&quot;</span>)),</span>
-<span id="cb16-9"><a href="training.html#cb16-9" aria-hidden="true" tabindex="-1"></a>  ...</span>
-<span id="cb16-10"><a href="training.html#cb16-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="training.html#cb16-1" tabindex="-1"></a><span class="do">## do not run</span></span>
+<span id="cb16-2"><a href="training.html#cb16-2" tabindex="-1"></a><span class="fu">train</span>(</span>
+<span id="cb16-3"><a href="training.html#cb16-3" tabindex="-1"></a>  <span class="at">form =</span> GPP_NT_VUT_REF <span class="sc">~</span> SW_F_IN <span class="sc">+</span> VPD_F <span class="sc">+</span> TA_F, </span>
+<span id="cb16-4"><a href="training.html#cb16-4" tabindex="-1"></a>  <span class="at">data =</span> ddf, </span>
+<span id="cb16-5"><a href="training.html#cb16-5" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">&quot;ranger&quot;</span>,</span>
+<span id="cb16-6"><a href="training.html#cb16-6" tabindex="-1"></a>  <span class="at">tuneGrid =</span> <span class="fu">expand.grid</span>( <span class="at">.mtry =</span> <span class="fu">floor</span>(<span class="dv">6</span> <span class="sc">/</span> <span class="dv">3</span>),</span>
+<span id="cb16-7"><a href="training.html#cb16-7" tabindex="-1"></a>                          <span class="at">.min.node.size =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">9</span>,<span class="dv">15</span>, <span class="dv">30</span>),</span>
+<span id="cb16-8"><a href="training.html#cb16-8" tabindex="-1"></a>                          <span class="at">.splitrule =</span> <span class="fu">c</span>(<span class="st">&quot;variance&quot;</span>, <span class="st">&quot;maxstat&quot;</span>)),</span>
+<span id="cb16-9"><a href="training.html#cb16-9" tabindex="-1"></a>  ...</span>
+<span id="cb16-10"><a href="training.html#cb16-10" tabindex="-1"></a>)</span></code></pre></div>
 <p>Here, <code>expand.grid()</code> is used to provide a data frame with all combinations of values provided by individual vectors.</p>
 </div>
 <div id="resampling" class="section level2 hasAnchor" number="6.2">
 <h2><span class="header-section-number">6.2</span> Resampling<a href="training.html#resampling" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>The goal of model training is to achieve the best possible model generalisability. That is, the best possible model performance when predicting to data that was not used for training - the test data. Resampling mimicks the comparison of predictions to the test data. Instead of using all training data, the training data is <em>resampled</em> into a number further splits into pairs of training and <em>validation</em> data. Model training is then guided by minimising the average loss determined on each resample of the validation data. Having multiple resamples (multiple <em>folds</em> of training-validation splits) avoids the loss minimization from being misguided by random peculiarities in the training and/or validation data.</p>
 <p>A common resampling method is <em>k-fold cross validation</em>, where the training data is split into <em>k</em> equally sized subsets (<em>folds</em>). Then, there will be <em>k</em> iterations, where each fold is used for validation once (while the remaining folds are used for training). An extreme case is <em>leave-one-out cross validation</em>, where <em>k</em> corresponds to the number of data points.</p>
-<p><img src="fig/cv.png" width="716" style="display: block; margin: auto;" /></p>
+<p><img src="fig/cv.png" style="display: block; margin: auto;" /></p>
 <p>To do a k-fold cross validation during model training in R, we don’t have to implement the loops around folds ourselves. The resampling procedure can be specified in the <strong>caret</strong> function <code>train()</code> with the argument <code>trControl</code>. The object that this argument takes is the output of a function call to <code>trainControl()</code>. This can be implemented in two steps. For example, to do a 10-fold cross-validation, we can write:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="training.html#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="do">## do not run</span></span>
-<span id="cb17-2"><a href="training.html#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">train</span>(</span>
-<span id="cb17-3"><a href="training.html#cb17-3" aria-hidden="true" tabindex="-1"></a>  pp, </span>
-<span id="cb17-4"><a href="training.html#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> ddf_train, </span>
-<span id="cb17-5"><a href="training.html#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">&quot;ranger&quot;</span>,</span>
-<span id="cb17-6"><a href="training.html#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">tuneGrid =</span> <span class="fu">expand.grid</span>( <span class="at">.mtry =</span> <span class="fu">floor</span>(<span class="dv">6</span> <span class="sc">/</span> <span class="dv">3</span>),</span>
-<span id="cb17-7"><a href="training.html#cb17-7" aria-hidden="true" tabindex="-1"></a>                          <span class="at">.min.node.size =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">9</span>,<span class="dv">15</span>, <span class="dv">30</span>),</span>
-<span id="cb17-8"><a href="training.html#cb17-8" aria-hidden="true" tabindex="-1"></a>                          <span class="at">.splitrule =</span> <span class="fu">c</span>(<span class="st">&quot;variance&quot;</span>, <span class="st">&quot;maxstat&quot;</span>)),</span>
-<span id="cb17-9"><a href="training.html#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">&quot;cv&quot;</span>, <span class="at">number =</span> <span class="dv">10</span>),</span>
-<span id="cb17-10"><a href="training.html#cb17-10" aria-hidden="true" tabindex="-1"></a>  ...</span>
-<span id="cb17-11"><a href="training.html#cb17-11" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="training.html#cb17-1" tabindex="-1"></a><span class="do">## do not run</span></span>
+<span id="cb17-2"><a href="training.html#cb17-2" tabindex="-1"></a><span class="fu">train</span>(</span>
+<span id="cb17-3"><a href="training.html#cb17-3" tabindex="-1"></a>  pp, </span>
+<span id="cb17-4"><a href="training.html#cb17-4" tabindex="-1"></a>  <span class="at">data =</span> ddf_train, </span>
+<span id="cb17-5"><a href="training.html#cb17-5" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">&quot;ranger&quot;</span>,</span>
+<span id="cb17-6"><a href="training.html#cb17-6" tabindex="-1"></a>  <span class="at">tuneGrid =</span> <span class="fu">expand.grid</span>( <span class="at">.mtry =</span> <span class="fu">floor</span>(<span class="dv">6</span> <span class="sc">/</span> <span class="dv">3</span>),</span>
+<span id="cb17-7"><a href="training.html#cb17-7" tabindex="-1"></a>                          <span class="at">.min.node.size =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">9</span>,<span class="dv">15</span>, <span class="dv">30</span>),</span>
+<span id="cb17-8"><a href="training.html#cb17-8" tabindex="-1"></a>                          <span class="at">.splitrule =</span> <span class="fu">c</span>(<span class="st">&quot;variance&quot;</span>, <span class="st">&quot;maxstat&quot;</span>)),</span>
+<span id="cb17-9"><a href="training.html#cb17-9" tabindex="-1"></a>  <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">&quot;cv&quot;</span>, <span class="at">number =</span> <span class="dv">10</span>),</span>
+<span id="cb17-10"><a href="training.html#cb17-10" tabindex="-1"></a>  ...</span>
+<span id="cb17-11"><a href="training.html#cb17-11" tabindex="-1"></a>)</span></code></pre></div>
 <p>In certain cases, data points stem from different “groups”, and generalisability across groups is critical. In such cases, data from a given group must not be used both in the training and validation sets. Instead, splits should be made along group delineations. The <em>caret</em> function <code>groupKFold()</code> offers the solution for this case.</p>
 
 </div>
@@ -319,42 +324,42 @@ Figure 6.1: Visualization of a loss function as a plane spanned by the two param
 <script>
 gitbook.require(["gitbook"], function(gitbook) {
 gitbook.start({
-"sharing": {
-"github": false,
-"facebook": true,
-"twitter": true,
-"linkedin": false,
-"weibo": false,
-"instapaper": false,
-"vk": false,
-"whatsapp": false,
-"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
-},
-"fontsettings": {
-"theme": "white",
-"family": "sans",
-"size": 2
-},
-"edit": {
-"link": null,
-"text": null
-},
-"history": {
-"link": null,
-"text": null
-},
-"view": {
-"link": null,
-"text": null
-},
-"download": ["ml4ec_workshop.pdf", "ml4ec_workshop.epub"],
-"search": {
-"engine": "fuse",
-"options": null
-},
-"toc": {
-"collapse": "subsection"
-}
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["ml4ec_workshop.pdf", "ml4ec_workshop.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  }
 });
 });
 </script>
@@ -365,7 +370,7 @@ gitbook.start({
     var script = document.createElement("script");
     script.type = "text/javascript";
     var src = "true";
-    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
     if (location.protocol !== "file:")
       if (/^https?:/.test(src))
         src = src.replace(/^https?:/, '');
